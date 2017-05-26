@@ -327,7 +327,7 @@ export default class ReactGridLayout extends React.Component {
 
     // Re-compact the layout and set the drag placeholder.
     this.setState({
-      layout: compact(layout, this.props.verticalCompact, this.props.horizontalCompact, this.props.horizontalFill),
+      layout: compact(layout, l, this.props.verticalCompact, this.props.horizontalCompact, this.props.horizontalFill),
       activeDrag: placeholder
     });
   }
