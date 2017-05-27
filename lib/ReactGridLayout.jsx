@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import isEqual from 'lodash.isequal';
 import classNames from 'classnames';
 import {autoBindHandlers, bottom, childrenEqual, cloneLayoutItem, compact, getLayoutItem, moveElement,
-  synchronizeLayoutWithChildren, validateLayout} from './utils';
+  synchronizeLayoutWithChildren, validateLayout, getLayoutRigthItems} from './utils';
 import GridItem from './GridItem';
 const noop = function() {};
 
@@ -312,7 +312,18 @@ export default class ReactGridLayout extends React.Component {
   onResize(i:string, w:number, h:number, {e, node}: ResizeEvent) {
     const {layout, oldResizeItem} = this.state;
     var l = getLayoutItem(layout, i);
+    const rightItems = getLayoutRigthItems(layout, i)
+
     if (!l) return;
+
+    let fixCount = 0
+    let fixWidth = 0
+    rightItems.forEach(function(item) {
+      fixCount += item.w
+      if (item.w === item.minW) fixWidth++
+    })
+    if (rightItems.length === 0 && l.w !== w) return
+    if (fixCount + l.x + w > 12 && fixWidth === rightItems.length && l.w !== w) return
 
     // Set new width and height.
     l.w = w;
@@ -327,7 +338,7 @@ export default class ReactGridLayout extends React.Component {
 
     // Re-compact the layout and set the drag placeholder.
     this.setState({
-      layout: compact(layout, l, this.props.verticalCompact, this.props.horizontalCompact, this.props.horizontalFill),
+      layout: compact(layout, l, this.props.verticalCompact, this.props.horizontalCompact, this.props.horizontalFill, h:number),
       activeDrag: placeholder
     });
   }
@@ -339,7 +350,7 @@ export default class ReactGridLayout extends React.Component {
     this.props.onResizeStop(layout, oldResizeItem, l, null, e, node);
 
     // Set state
-    const newLayout = compact(layout, this.props.verticalCompact, this.props.horizontalCompact, this.props.horizontalFill);
+    const newLayout = compact(layout, this.props.verticalCompact, this.props.horizontalCompact, this.props.horizontalFill, h:number);
     const {oldLayout} = this.state;
     this.setState({
       activeDrag: null,
