@@ -221,7 +221,6 @@ export default class ReactGridLayout extends React.Component {
     const {layout} = this.state;
     var l = getLayoutItem(layout, i);
     if (!l) return;
-
     this.setState({oldDragItem: cloneLayoutItem(l), oldLayout: this.state.layout});
 
     this.props.onDragStart(layout, l, l, null, e, node);
@@ -240,7 +239,6 @@ export default class ReactGridLayout extends React.Component {
     let {layout} = this.state;
     var l = getLayoutItem(layout, i);
     if (!l) return;
-
     // Create placeholder (display only)
     var placeholder = {
       w: l.w, h: l.h, x: l.x, y: l.y, placeholder: true, i: i
@@ -300,11 +298,26 @@ export default class ReactGridLayout extends React.Component {
     const {layout} = this.state;
     var l = getLayoutItem(layout, i);
     if (!l) return;
-
     this.setState({
       oldResizeItem: cloneLayoutItem(l),
       oldLayout: this.state.layout
     });
+
+    if (l.w !== w) { // width is change
+
+      let fixCount = 0 // count of elements with minW
+      let fixWidth = 0 // total width of elements is right of current
+
+      rightItems.forEach(function(item) {
+        fixWidth += item.w
+        if (item.w === item.minW) fixCount++
+      })
+
+      const isLastElement = rightItems.length === 0
+      const isNoSpaceForResize = fixWidth + l.x + w > 12 && fixCount === rightItems.length
+
+      if (isLastElement || isNoSpaceForResize) return
+    }
 
     this.props.onResizeStart(layout, l, l, null, e, node);
   }
@@ -312,18 +325,25 @@ export default class ReactGridLayout extends React.Component {
   onResize(i:string, w:number, h:number, {e, node}: ResizeEvent) {
     const {layout, oldResizeItem} = this.state;
     var l = getLayoutItem(layout, i);
-    const rightItems = getLayoutRigthItems(layout, i)
 
     if (!l) return;
 
-    let fixCount = 0
-    let fixWidth = 0
-    rightItems.forEach(function(item) {
-      fixCount += item.w
-      if (item.w === item.minW) fixWidth++
-    })
-    if (rightItems.length === 0 && l.w !== w) return
-    if (fixCount + l.x + w > 12 && fixWidth === rightItems.length && l.w !== w) return
+    if (l.w !== w) { // width is change
+      const rightItems = getLayoutRigthItems(layout, i)
+
+      let fixCount = 0 // count of elements with minW
+      let fixWidth = 0 // total width of elements is right of current
+
+      rightItems.forEach(function(item) {
+        fixWidth += item.w
+        if (item.w === item.minW) fixCount++
+      })
+
+      const isLastElement = rightItems.length === 0
+      const isNoSpaceForResize = fixWidth + l.x + w > 12 && fixCount === rightItems.length
+
+      if (isLastElement || isNoSpaceForResize) return
+    }
 
     // Set new width and height.
     l.w = w;
