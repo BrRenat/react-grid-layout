@@ -1,7 +1,8 @@
+/* eslint-disable */
 // @flow
 import React from 'react';
 import PropTypes from 'prop-types';
-import {DraggableCore} from 'react-draggable';
+import Draggable, {DraggableCore} from 'react-draggable';
 import {Resizable} from 'react-resizable';
 import {perc, setTopLeft, setTransform} from './utils';
 import classNames from 'classnames';
@@ -382,3 +383,4 @@ export default class GridItem extends React.Component {
     return newChild;
   }
 }
+/* eslint-enable */

@@ -1,6 +1,8 @@
+/* eslint-disable */
 // @flow
 import React from 'react';
 import isEqual from 'lodash.isequal';
+import debounce from 'lodash/debounce'
 import classNames from 'classnames';
 import {autoBindHandlers, bottom, childrenEqual, cloneLayoutItem, compact, getLayoutItem, moveElement,
   synchronizeLayoutWithChildren, validateLayout, getLayoutRigthItems} from './utils';
@@ -191,7 +193,7 @@ export default class ReactGridLayout extends React.Component {
       oldLayout: this.state.layout
     });
 
-    if (l.w !== w) { // width is change
+    if (l.w !== w && this.props.horizontalFill) { // width is change
 
       let fixCount = 0 // count of elements with minW
       let fixWidth = 0 // total width of elements is right of current
@@ -210,13 +212,13 @@ export default class ReactGridLayout extends React.Component {
     this.props.onResizeStart(layout, l, l, null, e, node);
   }
 
-  onResize(i:string, w:number, h:number, {e, node}: ResizeEvent) {
+  onResize = (i:string, w:number, h:number, {e, node}: ResizeEvent) => {
     const {layout, oldResizeItem} = this.state;
     var l = getLayoutItem(layout, i);
 
     if (!l) return;
 
-    if (l.w !== w) { // width is change
+    if (l.w !== w && this.props.horizontalFill) { // width is change
       const rightItems = getLayoutRigthItems(layout, i)
 
       let fixCount = 0 // count of elements with minW
@@ -246,7 +248,7 @@ export default class ReactGridLayout extends React.Component {
 
     // Re-compact the layout and set the drag placeholder.
     this.setState({
-      layout: compact(layout, l, this.props.verticalCompact, this.props.horizontalCompact, this.props.horizontalFill, h:number),
+      layout: compact(layout, l, this.props.verticalCompact, this.props.horizontalCompact, this.props.horizontalFill, h),
       activeDrag: placeholder
     });
   }
@@ -258,7 +260,7 @@ export default class ReactGridLayout extends React.Component {
     this.props.onResizeStop(layout, oldResizeItem, l, null, e, node);
 
     // Set state
-    const newLayout = compact(layout, this.props.verticalCompact, this.props.horizontalCompact, this.props.horizontalFill, h:number);
+    const newLayout = compact(layout, this.props.verticalCompact, this.props.horizontalCompact, this.props.horizontalFill, h);
     const {oldLayout} = this.state;
     this.setState({
       activeDrag: null,
@@ -373,3 +375,4 @@ export default class ReactGridLayout extends React.Component {
     );
   }
 }
+/* eslint-enable */
